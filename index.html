@@ -1279,7 +1279,7 @@ function getProfileIndex(score) {
 /* ══════════════════════════════════════
    GOOGLE SHEETS — BASE DE DADOS
 ══════════════════════════════════════ */
-const SHEET_URL = 'https://script.google.com/macros/library/d/1gdTsRdVbOz6mfWdM7wyuDU2rlygrief0neRQgtGRrj-6lNWXjrVvZuz1/2';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbx5v70LtgRy0NV6yQ4QMsCz9uu30-F8wAzx4w02lR_Etp9Bx3FV4mcLdtejwUIO5Bs/exec';
 
 async function saveToSheet(lead) {
   try {
@@ -1288,7 +1288,7 @@ async function saveToSheet(lead) {
     await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(lead)
     });
     return true;
