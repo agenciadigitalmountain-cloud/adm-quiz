@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Digital — ADM Agência Digital Mountain</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:   #080808;
+  --dark:    #101010;
+  --card:    #141414;
+  --card2:   #1a1a1a;
+  --border:  rgba(255,255,255,0.07);
+  --green:   #00FF41;
+  --green2:  #00cc33;
+  --green-dim: rgba(0,255,65,0.08);
+  --green-mid: rgba(0,255,65,0.15);
+  --white:   #f5f5f5;
+  --muted:   rgba(255,255,255,0.4);
+  --sub:     rgba(255,255,255,0.65);
+  --r: 12px;
+  --rs: 8px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── GRID OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,65,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,65,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── GLOW ─── */
+.glow-blob {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,65,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  top: -200px;
+  right: -200px;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 20px 100px;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0 48px;
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--green);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-icon svg { display: block; }
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  color: var(--white);
+}
+.logo-text span { color: var(--green); }
+.badge-diag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  border: 1px solid rgba(0,255,65,0.3);
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: var(--green-dim);
+}
+
+/* ─── PROGRESS ─── */
+.progress-wrap { margin-bottom: 40px; display: none; }
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.progress-meta span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.progress-meta .pct { color: var(--green); }
+.progress-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  box-shadow: 0 0 8px var(--green);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.4s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── INTRO ─── */
+.tag-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 22px;
+}
+.tag-line::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+.intro-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(44px, 9vw, 72px);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+.intro-headline em {
+  font-style: normal;
+  color: var(--green);
+  text-shadow: 0 0 30px rgba(0,255,65,0.4);
+}
+.intro-sub {
+  font-size: 16px;
+  color: var(--sub);
+  line-height: 1.8;
+  margin-bottom: 36px;
+  max-width: 540px;
+}
+.check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+@media (max-width: 480px) { .check-grid { grid-template-columns: 1fr; } }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 14px;
+  font-size: 14px;
+  color: var(--sub);
+  line-height: 1.4;
+}
+.check-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green-dim);
+  border: 1px solid rgba(0,255,65,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--green);
+  font-weight: 900;
+}
+.meta-pills {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 44px;
+}
+.meta-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.meta-pill svg { color: var(--green); opacity: 0.7; }
+
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--green);
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  padding: 16px 40px;
+  border-radius: var(--rs);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 24px rgba(0,255,65,0.3);
+}
+.btn-start:hover {
+  background: #33ff6b;
+  transform: translateY(-2px);
+  box-shadow: 0 0 36px rgba(0,255,65,0.5);
+}
+.btn-start svg { transition: transform 0.2s; }
+.btn-start:hover svg { transform: translateX(5px); }
+
+/* ─── QUESTION ─── */
+.q-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.q-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(26px, 5vw, 36px);
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 28px;
+  letter-spacing: 0.01em;
+}
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+  color: var(--sub);
+  font-size: 15px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  width: 100%;
+}
+.opt:hover {
+  border-color: rgba(0,255,65,0.35);
+  background: var(--green-dim);
+  color: var(--white);
+}
+.opt.selected {
+  border-color: var(--green);
+  background: var(--green-mid);
+  color: var(--white);
+  box-shadow: 0 0 12px rgba(0,255,65,0.1);
+}
+.opt-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+}
+.opt.selected .opt-radio {
+  border-color: var(--green);
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(0,255,65,0.5);
+}
+.opt.selected .opt-radio::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #000;
+}
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; }
+.btn-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 14px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: var(--rs);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-back:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+.btn-next {
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  padding: 13px 32px;
+  border-radius: var(--rs);
+  cursor: pointer;
+  transition: all 0.18s;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.btn-next.active { opacity: 1; pointer-events: auto; }
+.btn-next.active:hover { background: #33ff6b; transform: translateY(-1px); }
+
+/* ─── CONTACT FORM ─── */
+.form-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(34px, 6vw, 50px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  margin-bottom: 12px;
+}
+.form-headline em { font-style: normal; color: var(--green); }
+.form-sub { font-size: 15px; color: var(--sub); margin-bottom: 36px; line-height: 1.75; }
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 15px 16px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,255,65,0.08);
+}
+.btn-submit {
+  width: 100%;
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  padding: 18px;
+  border-radius: var(--rs);
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: 8px;
+  box-shadow: 0 0 24px rgba(0,255,65,0.25);
+}
+.btn-submit:hover { background: #33ff6b; transform: translateY(-2px); box-shadow: 0 0 36px rgba(0,255,65,0.4); }
+.form-trust {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ─── RESULT ─── */
+.result-nametag {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 28px;
+  letter-spacing: 0.03em;
+}
+.result-nametag strong { color: var(--white); }
+
+.result-hero {
+  border-radius: var(--r);
+  padding: 40px 36px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.result-hero::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--hero-glow, rgba(255,255,255,0.05)), transparent 70%);
+  pointer-events: none;
+}
+.r1 { background: linear-gradient(145deg,#150808,#1f0d0d); border: 1px solid rgba(220,50,50,0.25); --hero-glow: rgba(220,50,50,0.12); }
+.r2 { background: linear-gradient(145deg,#0e0e18,#141428); border: 1px solid rgba(100,100,220,0.2); --hero-glow: rgba(100,100,220,0.1); }
+.r3 { background: linear-gradient(145deg,#081a0e,#0e2818); border: 1px solid rgba(0,200,80,0.2); --hero-glow: rgba(0,200,80,0.1); }
+.r4 { background: linear-gradient(145deg,#141008,#201800); border: 1px solid rgba(255,200,0,0.2); --hero-glow: rgba(255,200,0,0.1); }
+.r5 { background: linear-gradient(145deg,#080d18,#0a1224); border: 1px solid rgba(0,255,65,0.3); --hero-glow: rgba(0,255,65,0.15); }
+
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 99px;
+  margin-bottom: 20px;
+}
+.r1 .result-badge { color: #ff5a5a; background: rgba(220,50,50,0.12); border: 1px solid rgba(220,50,50,0.25); }
+.r2 .result-badge { color: #8888ee; background: rgba(100,100,220,0.1); border: 1px solid rgba(100,100,220,0.25); }
+.r3 .result-badge { color: #3fdc7a; background: rgba(0,200,80,0.1); border: 1px solid rgba(0,200,80,0.25); }
+.r4 .result-badge { color: #ffd033; background: rgba(255,200,0,0.1); border: 1px solid rgba(255,200,0,0.25); }
+.r5 .result-badge { color: var(--green); background: var(--green-dim); border: 1px solid rgba(0,255,65,0.3); }
+
+.result-icon { font-size: 48px; margin-bottom: 16px; }
+.result-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(28px, 5vw, 40px);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+.result-desc { font-size: 15px; color: var(--sub); line-height: 1.8; margin-bottom: 28px; }
+
+.score-wrap { }
+.score-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.score-meta span { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.score-val { color: var(--white) !important; font-size: 18px !important; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em !important; }
+.score-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.score-bar {
+  height: 100%;
+  border-radius: 99px;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+.r1 .score-bar { background: linear-gradient(90deg, #dc3232, #ff5a5a); box-shadow: 0 0 8px rgba(220,50,50,0.5); }
+.r2 .score-bar { background: linear-gradient(90deg, #6464dc, #8888ee); }
+.r3 .score-bar { background: linear-gradient(90deg, #00c850, #3fdc7a); }
+.r4 .score-bar { background: linear-gradient(90deg, #ffd033, #ffe066); }
+.r5 .score-bar { background: linear-gradient(90deg, var(--green), #66ff88); box-shadow: 0 0 10px rgba(0,255,65,0.5); }
+
+/* ─── ANALYSIS BLOCKS ─── */
+.block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
+.block-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.block-title::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--accent-color, var(--green));
+}
+.list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 14px;
+  color: var(--sub);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.list-item:last-child { border-bottom: none; }
+.bullet {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 900;
+  margin-top: 1px;
+}
+.bullet.warn { background: rgba(220,50,50,0.12); color: #ff5a5a; border: 1px solid rgba(220,50,50,0.25); }
+.bullet.ok   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,255,65,0.25); }
+
+/* ─── RECOMMENDATION ─── */
+.rec-box {
+  background: var(--card);
+  border: 1px solid rgba(0,255,65,0.2);
+  border-radius: var(--r);
+  padding: 28px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.rec-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--green);
+  box-shadow: 0 0 12px rgba(0,255,65,0.5);
+}
+.rec-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 10px;
+  padding-left: 12px;
+}
+.rec-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  line-height: 1.2;
+  padding-left: 12px;
+}
+
+/* ─── PLANS SECTION ─── */
+.plans-section { margin: 32px 0; }
+.plans-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.plans-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 560px) { .plans-grid { grid-template-columns: 1fr; } }
+
+.plan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 18px;
+  position: relative;
+  transition: all 0.2s;
+}
+.plan-card.highlighted {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 30px rgba(0,255,65,0.25);
+}
+.plan-card.highlighted * { color: #000 !important; }
+.plan-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+.plan-card.highlighted .plan-name { color: rgba(0,0,0,0.6); }
+.plan-tag { font-size: 11px; color: var(--muted); margin-bottom: 14px; line-height: 1.4; }
+.plan-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.plan-period { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+.plan-feature {
+  font-size: 12px;
+  color: var(--sub);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.plan-card.highlighted .plan-feature { border-color: rgba(0,0,0,0.15); }
+.plan-feature:last-child { border-bottom: none; }
+.plan-feature::before { content: '✓'; font-size: 10px; color: var(--green); font-weight: 900; flex-shrink: 0; }
+.plan-card.highlighted .plan-feature::before { color: rgba(0,0,0,0.5); }
+.plan-recommended {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: var(--green);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 99px;
+  white-space: nowrap;
+  border: 1px solid rgba(0,255,65,0.3);
+}
+
+/* ─── DIVIDER ─── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+/* ─── CTA BLOCK ─── */
+.cta-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 40px 32px;
+  text-align: center;
+}
+.cta-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 14px;
+}
+.cta-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(28px, 5vw, 40px);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.cta-sub { font-size: 15px; color: var(--sub); line-height: 1.75; margin-bottom: 28px; }
+.cta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.cta-chip {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sub);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.cta-chip span { color: var(--green); font-size: 10px; font-weight: 900; }
+
+.btn-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #25D366;
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  padding: 18px 36px;
+  border-radius: var(--rs);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(37,211,102,0.2);
+}
+.btn-wa:hover { background: #1ebe5d; transform: translateY(-2px); box-shadow: 0 0 30px rgba(37,211,102,0.35); }
+.btn-wa svg { flex-shrink: 0; }
+.privacy-note { font-size: 12px; color: var(--muted); margin-top: 14px; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 99px;
+  z-index: 9999;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 480px) {
+  .result-hero { padding: 28px 22px; }
+  .block { padding: 20px 18px; }
+  .cta-block { padding: 30px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="glow-blob"></div>
+
+<div class="page">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M2 16 L7 9 L11 13 L15 6 L20 16" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">A<span>.</span>D<span>.</span>M</div>
+    </div>
+    <div class="badge-diag">Diagnóstico Digital</div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-meta">
+      <span id="step-label">Pergunta 1 de 15</span>
+      <span class="pct" id="pct-label">7%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:7%"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: INTRO ══ -->
+  <div class="screen active" id="screen-intro">
+    <div class="tag-line">Diagnóstico gratuito · ADM</div>
+    <h1 class="intro-headline">
+      DESCUBRA O<br>NÍVEL <em>DIGITAL</em><br>DA SUA EMPRESA
+    </h1>
+    <p class="intro-sub">
+      A sua empresa está realmente preparada para crescer nas redes sociais?
+      Responda este diagnóstico e descubra onde estão as oportunidades ocultas.
+    </p>
+    <div class="check-grid">
+      <div class="check-item"><div class="check-dot">✓</div>O nível digital da sua marca</div>
+      <div class="check-item"><div class="check-dot">✓</div>Os erros que afastam clientes</div>
+      <div class="check-item"><div class="check-dot">✓</div>O que precisa melhorar agora</div>
+      <div class="check-item"><div class="check-dot">✓</div>Estratégia para acelerar o crescimento</div>
+    </div>
+    <div class="meta-pills">
+      <div class="meta-pill">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        2 minutos
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        15 perguntas
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        100% gratuito
+      </div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">
+      INICIAR DIAGNÓSTICO
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- ══ SCREEN: QUIZ ══ -->
+  <div class="screen" id="screen-quiz">
+    <div class="q-eyebrow" id="q-number">Pergunta 1 de 15</div>
+    <p class="q-text" id="q-text"></p>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back" onclick="prevStep()">← Voltar</button>
+      <button class="btn-next" id="btn-next" onclick="nextStep()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: CONTACT ══ -->
+  <div class="screen" id="screen-contact">
+    <div class="tag-line" style="margin-bottom:18px">Último passo</div>
+    <h2 class="form-headline">DESBLOQUEAR O<br>RESULTADO <em>COMPLETO</em></h2>
+    <p class="form-sub">Preencha os seus dados para receber o diagnóstico personalizado e as recomendações estratégicas da ADM.</p>
+    <div class="form-group">
+      <label class="form-label">Nome completo *</label>
+      <input class="form-input" type="text" id="f-name" placeholder="Ex: Maria Santos" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Empresa / Negócio *</label>
+      <input class="form-input" type="text" id="f-company" placeholder="Nome da sua empresa" autocomplete="organization">
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp *</label>
+      <input class="form-input" type="tel" id="f-phone" placeholder="+258 84 297 7554" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="f-email" placeholder="email@empresa.com" autocomplete="email">
+    </div>
+    <button class="btn-submit" onclick="submitForm()">VER MEU DIAGNÓSTICO COMPLETO →</button>
+    <p class="form-trust">
+      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Os seus dados são confidenciais e nunca partilhados com terceiros.
+    </p>
+  </div>
+
+  <!-- ══ SCREEN: RESULT ══ -->
+  <div class="screen" id="screen-result"></div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Dados guardados com sucesso!</div>
+
+<script>
+/* ══════════════════════════════════════
+   PERGUNTAS
+══════════════════════════════════════ */
+const questions = [
+  {
+    text: "A sua empresa publica conteúdos nas redes sociais?",
+    options: [
+      { l: "Todos os dias", s: 5 },
+      { l: "Algumas vezes por semana", s: 4 },
+      { l: "Raramente", s: 2 },
+      { l: "Quase nunca", s: 1 },
+      { l: "Não temos presença activa", s: 0 }
+    ]
+  },
+  {
+    text: "Quem cria os conteúdos da empresa?",
+    options: [
+      { l: "Equipa profissional", s: 5 },
+      { l: "Freelancer", s: 4 },
+      { l: "Funcionário interno", s: 3 },
+      { l: "O próprio dono", s: 2 },
+      { l: "Ninguém específico", s: 0 }
+    ]
+  },
+  {
+    text: "Os conteúdos geram resultados reais?",
+    options: [
+      { l: "Sim, geram vendas constantemente", s: 5 },
+      { l: "Geram interações", s: 3 },
+      { l: "Poucos resultados", s: 2 },
+      { l: "Não sabemos medir", s: 1 },
+      { l: "Não geram resultados", s: 0 }
+    ]
+  },
+  {
+    text: "A identidade visual da empresa é consistente?",
+    options: [
+      { l: "Muito profissional", s: 5 },
+      { l: "Boa, mas pode melhorar", s: 3 },
+      { l: "Inconsistente", s: 2 },
+      { l: "Fraca", s: 1 },
+      { l: "Não temos identidade visual", s: 0 }
+    ]
+  },
+  {
+    text: "A empresa utiliza vídeos curtos (Reels / TikTok / Shorts)?",
+    options: [
+      { l: "Sim, frequentemente", s: 5 },
+      { l: "Às vezes", s: 3 },
+      { l: "Muito raramente", s: 2 },
+      { l: "Nunca", s: 1 },
+      { l: "Nem sabemos como fazer", s: 0 }
+    ]
+  },
+  {
+    text: "O dono ou equipa aparecem nos conteúdos?",
+    options: [
+      { l: "Sim, frequentemente", s: 5 },
+      { l: "Às vezes", s: 3 },
+      { l: "Raramente", s: 2 },
+      { l: "Nunca", s: 1 },
+      { l: "Temos medo/vergonha de aparecer", s: 0 }
+    ]
+  },
+  {
+    text: "As redes sociais trazem clientes?",
+    options: [
+      { l: "Sim, regularmente", s: 5 },
+      { l: "Às vezes", s: 3 },
+      { l: "Muito pouco", s: 2 },
+      { l: "Quase nunca", s: 1 },
+      { l: "Nunca trouxeram clientes", s: 0 }
+    ]
+  },
+  {
+    text: "Já investiram em anúncios pagos?",
+    options: [
+      { l: "Sim, frequentemente", s: 5 },
+      { l: "Algumas campanhas", s: 4 },
+      { l: "Poucas vezes", s: 2 },
+      { l: "Nunca", s: 1 },
+      { l: "Não sabemos como funciona", s: 0 }
+    ]
+  },
+  {
+    text: "Quanto tempo levam para responder clientes?",
+    options: [
+      { l: "Menos de 10 minutos", s: 5 },
+      { l: "Menos de 1 hora", s: 4 },
+      { l: "Algumas horas", s: 2 },
+      { l: "Mais de 1 dia", s: 1 },
+      { l: "Não respondemos rapidamente", s: 0 }
+    ]
+  },
+  {
+    text: "A empresa tem estratégia de conteúdo?",
+    options: [
+      { l: "Sim, muito clara", s: 5 },
+      { l: "Parcialmente", s: 3 },
+      { l: "Improvisamos", s: 2 },
+      { l: "Publicamos sem planeamento", s: 1 },
+      { l: "Não temos estratégia", s: 0 }
+    ]
+  },
+  {
+    text: "Vocês acompanham métricas?",
+    options: [
+      { l: "Sim, constantemente", s: 5 },
+      { l: "Às vezes", s: 3 },
+      { l: "Muito pouco", s: 2 },
+      { l: "Nunca", s: 1 },
+      { l: "Nem sabemos interpretar métricas", s: 0 }
+    ]
+  },
+  {
+    text: "Como está o crescimento das redes sociais?",
+    options: [
+      { l: "Crescimento forte", s: 5 },
+      { l: "Crescimento moderado", s: 4 },
+      { l: "Estagnado", s: 2 },
+      { l: "A cair", s: 1 },
+      { l: "Sem crescimento nenhum", s: 0 }
+    ]
+  },
+  {
+    text: "Como os clientes descobrem a empresa?",
+    options: [
+      { l: "Redes sociais", s: 5 },
+      { l: "Indicações", s: 3 },
+      { l: "WhatsApp", s: 3 },
+      { l: "Local físico", s: 2 },
+      { l: "Não sabemos", s: 0 }
+    ]
+  },
+  {
+    text: "Qual é a maior dificuldade da empresa hoje?",
+    options: [
+      { l: "Falta de vendas", s: 1 },
+      { l: "Baixo alcance", s: 1 },
+      { l: "Pouca autoridade", s: 1 },
+      { l: "Falta de conteúdo", s: 1 },
+      { l: "Falta de estratégia", s: 1 },
+      { l: "Não sabemos por onde começar", s: 0 }
+    ]
+  },
+  {
+    text: "Qual é o objectivo da empresa nos próximos 6 meses?",
+    options: [
+      { l: "Vender mais", s: 3 },
+      { l: "Crescer nas redes", s: 3 },
+      { l: "Tornar-se referência", s: 4 },
+      { l: "Conseguir mais clientes", s: 3 },
+      { l: "Profissionalizar a marca", s: 4 },
+      { l: "Expandir o negócio", s: 5 }
+    ]
+  }
+];
+
+/* ══════════════════════════════════════
+   PERFIS DE RESULTADO
+══════════════════════════════════════ */
+const profiles = [
+  {
+    cls: 'r1',
+    icon: '🚨',
+    badge: 'EMPRESA INVISÍVEL',
+    title: 'Posicionamento Digital Praticamente Inexistente',
+    desc: 'A sua empresa praticamente não possui posicionamento digital estratégico. Isso significa que clientes podem não confiar na marca, os concorrentes estão mais visíveis e há perda diária de oportunidades.',
+    problems: [
+      'Clientes podem não confiar na marca',
+      'Concorrentes estão mais visíveis online',
+      'Empresa depende excessivamente de indicações',
+      'Perda diária de oportunidades de venda'
+    ],
+    needs: [
+      'Presença profissional nas redes sociais',
+      'Identidade visual forte e consistente',
+      'Estratégia de conteúdo definida',
+      'Consistência e posicionamento digital'
+    ],
+    rec: 'Plano BINGA + estruturação inicial da presença digital.',
+    planHighlight: 0
+  },
+  {
+    cls: 'r2',
+    icon: '⚠️',
+    badge: 'MARCA ESTAGNADA',
+    title: 'Presença Digital Existente, Mas Sem Tração',
+    desc: 'A sua empresa já possui presença digital, mas está estagnada. Os conteúdos não estão a gerar autoridade, alcance nem conversão suficiente para sustentar o crescimento.',
+    problems: [
+      'Falta de estratégia de conteúdo clara',
+      'Baixa consistência nas publicações',
+      'Conteúdos pouco persuasivos',
+      'Ausência de funil de vendas digital',
+      'Pouca humanização da marca'
+    ],
+    needs: [
+      'Estratégia de crescimento definida',
+      'Conteúdos mais persuasivos e com funil',
+      'Maior humanização e autoridade',
+      'Crescimento consistente e mensurável'
+    ],
+    rec: 'Plano KILIMANJARO com foco em crescimento estratégico.',
+    planHighlight: 1
+  },
+  {
+    cls: 'r3',
+    icon: '🔥',
+    badge: 'MARCA EM CRESCIMENTO',
+    title: 'Sinais Fortes de Crescimento Digital',
+    desc: 'A sua empresa já demonstra sinais de crescimento digital. Existe potencial forte de expansão, mas ainda há oportunidades importantes não aproveitadas que podem acelerar muito os resultados.',
+    problems: [
+      'Vídeos estratégicos ainda não explorados',
+      'Posicionamento de autoridade a desenvolver',
+      'Campanhas pagas sem otimização máxima'
+    ],
+    needs: [
+      'Vídeos estratégicos (Reels, Shorts)',
+      'Posicionamento de autoridade forte',
+      'Campanhas pagas bem estruturadas',
+      'Conteúdos emocionais e presença do fundador'
+    ],
+    rec: 'Plano KILIMANJARO + tráfego pago estratégico.',
+    planHighlight: 1
+  },
+  {
+    cls: 'r4',
+    icon: '🚀',
+    badge: 'MARCA AUTORIDADE',
+    title: 'Presença Digital Sólida e Estratégica',
+    desc: 'A sua empresa já possui uma presença digital sólida e estratégica. A marca demonstra consistência, posicionamento e profissionalismo. Agora o foco deve ser em escala e conversão avançada.',
+    problems: [
+      'Escala ainda não maximizada',
+      'Autoridade pode ser expandida',
+      'Conversão avançada a desenvolver'
+    ],
+    needs: [
+      'Escala de crescimento acelerado',
+      'Autoridade massiva no mercado',
+      'Conversão avançada e campanhas',
+      'Expansão de mercado'
+    ],
+    rec: 'Plano EVEREST + campanhas de autoridade e vendas.',
+    planHighlight: 2
+  },
+  {
+    cls: 'r5',
+    icon: '🏔️',
+    badge: 'NÍVEL EVEREST',
+    title: 'Operação Digital Acima da Média',
+    desc: 'Parabéns. A sua empresa já opera num nível digital acima da média. A marca demonstra estratégia, autoridade, posicionamento forte, consistência e visão de crescimento. Agora é dominar o mercado.',
+    problems: [
+      'Domínio de mercado ainda não total',
+      'Ecossistema digital a construir'
+    ],
+    needs: [
+      'Domínio do mercado nacional',
+      'Reconhecimento e branding ampliados',
+      'Escala de vendas acelerada',
+      'Ecossistema digital completo'
+    ],
+    rec: 'Plano EVEREST — domine o mercado e torne-se referência nacional.',
+    planHighlight: 2
+  }
+];
+
+/* ══════════════════════════════════════
+   PLANOS
+══════════════════════════════════════ */
+const plans = [
+  {
+    name: 'BINGA',
+    tag: 'Pacote Base — Ideal para pequenas empresas a iniciar presença nas redes.',
+    price: '15.000 MZN',
+    period: '/mês · +5.000 MZN budget anúncios',
+    features: ['6 posts por mês (feed)', 'Posts bónus em datas comemorativas', '2 vídeos (Reels / Stories)', 'Stories semanais interativos', '1 campanha de anúncios gerenciada']
+  },
+  {
+    name: 'KILIMANJARO',
+    tag: 'Pacote Intermediário — Para empresas em crescimento que buscam expandir engajamento e alcance regional.',
+    price: '30.000 MZN',
+    period: '/mês · +10.000 MZN budget anúncios',
+    features: ['12 posts por mês (conteúdo variado e rico)', '4 vídeos ou animações mensais', 'Stories quase diários com enquetes', 'Gestão de até 2 campanhas simultâneas', 'Relatório de desempenho mensal', 'Reunião de alinhamento']
+  },
+  {
+    name: 'EVEREST',
+    tag: 'Pacote Avançado — Para marcas que almejam liderança nacional e máxima presença digital.',
+    price: '50.000 MZN',
+    period: '/mês · +20.000 MZN budget anúncios',
+    features: ['20+ posts por mês (alto volume)', '8 vídeos profissionais por mês', 'Stories diários', 'Gestão completa de campanhas multi-plataforma', 'Consultoria estratégica mensal dedicada', 'Suporte prioritário']
+  }
+];
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let current = 0;
+let answers = [];
+let contactData = {};
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function startQuiz() {
+  showScreen('screen-quiz');
+  document.getElementById('progress-wrap').style.display = 'block';
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  requestAnimationFrame(() => el.classList.add('active'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  const pct = Math.round(((current + 1) / total) * 100);
+
+  document.getElementById('step-label').textContent = `Pergunta ${current + 1} de ${total}`;
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-number').textContent = `Pergunta ${current + 1} de ${total}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const saved = answers[current];
+
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (saved === i ? ' selected' : '');
+    btn.innerHTML = `<span class="opt-radio"></span>${opt.l}`;
+    btn.onclick = () => selectOption(i);
+    grid.appendChild(btn);
+  });
+
+  const backBtn = document.getElementById('btn-back');
+  backBtn.style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.className = 'btn-next' + (saved !== undefined ? ' active' : '');
+  nextBtn.textContent = current === total - 1 ? 'VER RESULTADO →' : 'CONTINUAR →';
+}
+
+function selectOption(i) {
+  answers[current] = i;
+  document.querySelectorAll('.opt').forEach((b, idx) => {
+    b.className = 'opt' + (idx === i ? ' selected' : '');
+  });
+  document.getElementById('btn-next').className = 'btn-next active';
+}
+
+function nextStep() {
+  if (answers[current] === undefined) return;
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    showScreen('screen-contact');
+    document.getElementById('progress-wrap').style.display = 'none';
+  }
+}
+
+function prevStep() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+/* ══════════════════════════════════════
+   SCORING
+══════════════════════════════════════ */
+function calcScore() {
+  return answers.reduce((sum, ai, qi) => sum + (questions[qi].options[ai]?.s || 0), 0);
+}
+
+function getProfileIndex(score) {
+  const maxScore = questions.reduce((s, q) => s + Math.max(...q.options.map(o => o.s)), 0);
+  const pct = score / maxScore;
+  if (pct < 0.20) return 0;
+  if (pct < 0.40) return 1;
+  if (pct < 0.60) return 2;
+  if (pct < 0.80) return 3;
+  return 4;
+}
+
+/* ══════════════════════════════════════
+   GOOGLE SHEETS — BASE DE DADOS
+══════════════════════════════════════ */
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxhiZH6vZjQYNkC7z5y763rUCcYSNNuRTIzXpqzgz14yPwZQ2_HBVRmFT0yeEU8BeIZ/exec';
+
+async function saveToSheet(lead) {
+  try {
+    // Google Apps Script não aceita JSON via fetch com CORS normal,
+    // por isso usamos um iframe trick (no-cors) que é suficiente para POST simples
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead)
+    });
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+/* ══════════════════════════════════════
+   FORM SUBMIT
+══════════════════════════════════════ */
+async function submitForm() {
+  const name    = document.getElementById('f-name').value.trim();
+  const company = document.getElementById('f-company').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+
+  if (!name || !company || !phone) {
+    alert('Por favor preencha nome, empresa e WhatsApp.');
+    return;
+  }
+
+  contactData = { name, company, phone, email };
+
+  // Calcular score e perfil
+  const score = calcScore();
+  const pIdx  = getProfileIndex(score);
+  const p     = profiles[pIdx];
+  const maxSc = questions.reduce((s, q) => s + Math.max(...q.options.map(o => o.s)), 0);
+  const pct   = Math.round((score / maxSc) * 100);
+
+  // Mostrar botão a carregar
+  const btn = document.querySelector('.btn-submit');
+  const originalText = btn.textContent;
+  btn.textContent = 'A guardar dados...';
+  btn.style.opacity = '0.7';
+  btn.style.pointerEvents = 'none';
+
+  // Montar lead com todas as respostas detalhadas
+  const lead = {
+    timestamp: new Date().toLocaleString('pt-PT', { timeZone: 'Africa/Maputo' }),
+    name,
+    company,
+    phone,
+    email,
+    score,
+    pct,
+    profile: p.badge,
+    answers: answers.map((ai, qi) =>
+      `P${qi + 1}: ${questions[qi].options[ai]?.l || ''}`
+    ).join(' | ')
+  };
+
+  // Enviar para Google Sheets
+  const saved = await saveToSheet(lead);
+
+  // Repor botão
+  btn.textContent = originalText;
+  btn.style.opacity = '';
+  btn.style.pointerEvents = '';
+
+  if (saved) {
+    showToast('✓ Dados guardados com sucesso!');
+  }
+
+  // Mostrar resultado independentemente (mesmo se falhar o envio)
+  renderResult();
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════════
+   RENDER RESULT
+══════════════════════════════════════ */
+function renderResult() {
+  const score  = calcScore();
+  const maxSc  = questions.reduce((s, q) => s + Math.max(...q.options.map(o => o.s)), 0);
+  const pIdx   = getProfileIndex(score);
+  const p      = profiles[pIdx];
+  const pct    = Math.round((score / maxSc) * 100);
+
+  const wamsg  = encodeURIComponent(
+    `Olá ADM! Sou ${contactData.name} da empresa ${contactData.company}.\n\n` +
+    `Fiz o Diagnóstico Digital e o meu resultado foi: "${p.badge}" (${pct}% de maturidade digital).\n\n` +
+    `Gostaria de saber como podem ajudar a minha empresa a crescer! 🚀`
+  );
+  const waLink = `https://wa.me/258842977554?text=${wamsg}`;
+
+  // Build plan cards
+  const planCards = plans.map((pl, i) => {
+    const isHL = i === p.planHighlight;
+    return `
+      <div class="plan-card ${isHL ? 'highlighted' : ''}">
+        ${isHL ? '<div class="plan-recommended">⭐ RECOMENDADO PARA SI</div>' : ''}
+        <div class="plan-name">${pl.name}</div>
+        <div class="plan-tag">${pl.tag}</div>
+        <div class="plan-price">${pl.price}</div>
+        <div class="plan-period">${pl.period}</div>
+        ${pl.features.map(f => `<div class="plan-feature">${f}</div>`).join('')}
+      </div>
+    `;
+  }).join('');
+
+  const el = document.getElementById('screen-result');
+  el.innerHTML = `
+    <div class="result-nametag">Diagnóstico de <strong>${contactData.name}</strong> · ${contactData.company}</div>
+
+    <div class="result-hero ${p.cls}">
+      <div class="result-badge">${p.badge}</div>
+      <div class="result-icon">${p.icon}</div>
+      <h2 class="result-title">${p.title}</h2>
+      <p class="result-desc">${p.desc}</p>
+      <div class="score-wrap">
+        <div class="score-meta">
+          <span>Maturidade Digital</span>
+          <span class="score-val">${pct}%</span>
+        </div>
+        <div class="score-track">
+          <div class="score-bar" id="score-bar-anim"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" style="--accent-color: #ff5a5a">
+      <div class="block-title">Problemas detectados</div>
+      <div class="item-list">
+        ${p.problems.map(x => `<div class="list-item"><span class="bullet warn">!</span>${x}</div>`).join('')}
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">O que precisa urgentemente</div>
+      <div class="item-list">
+        ${p.needs.map(x => `<div class="list-item"><span class="bullet ok">✓</span>${x}</div>`).join('')}
+      </div>
+    </div>
+
+    <div class="rec-box">
+      <div class="rec-label">Recomendação ADM</div>
+      <div class="rec-text">${p.rec}</div>
+    </div>
+
+    <div class="plans-section">
+      <div class="plans-title">PLANOS ADM</div>
+      <div class="plans-sub">Escolha o plano ideal para o estágio da sua empresa</div>
+      <div class="plans-grid">${planCards}</div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="cta-block">
+      <div class="cta-eyebrow">Análise Estratégica Gratuita</div>
+      <h3 class="cta-title">QUER CRESCER NAS<br>REDES SOCIAIS?</h3>
+      <p class="cta-sub">A nossa equipa pode mostrar-lhe oportunidades ocultas, melhorias prioritárias e a estratégia ideal para a sua marca crescer de forma consistente.</p>
+      <div class="cta-chips">
+        <div class="cta-chip"><span>✓</span> Oportunidades ocultas</div>
+        <div class="cta-chip"><span>✓</span> Melhorias prioritárias</div>
+        <div class="cta-chip"><span>✓</span> Estratégias de crescimento</div>
+        <div class="cta-chip"><span>✓</span> Ideias de conteúdo</div>
+        <div class="cta-chip"><span>✓</span> Posicionamento ideal</div>
+      </div>
+      <button class="btn-wa" onclick="window.open('${waLink}','_blank')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        FALAR COM A ADM NO WHATSAPP
+      </button>
+      <p class="privacy-note">Os seus dados são confidenciais e nunca partilhados com terceiros.</p>
+    </div>
+  `;
+
+  showScreen('screen-result');
+
+  setTimeout(() => {
+    const bar = document.getElementById('score-bar-anim');
+    if (bar) bar.style.width = pct + '%';
+  }, 500);
+}
+</script>
+</body>
+</html>
